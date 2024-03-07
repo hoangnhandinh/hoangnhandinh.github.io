@@ -1,0 +1,113 @@
+[
+{
+	"uri": "/vi/5-connectbyclientvpn/5.1-dowloadcongigurationfile/",
+	"title": "Tải về và tùy chỉnh tệp cấu hình Client VPN Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Tải về và tùy chỉnh tệp cấu hình Client VPN Endpoint Bước tiếp theo là tải về và chuẩn bị tệp cấu hình Client VPN Endpoint. Tệp cấu hình bao gồm chi tiết Client VPN Endpoint và thông tin chứng chỉ cần thiết để thiết lập kết nối VPN. Bạn cung cấp tệp này cho người dùng cuối cần kết nối đến Client VPN Endpoint sau khi thực hiện các thay đổi cần thiết được liệt kê dưới đây. Người dùng cuối sau đó sử dụng tệp này để cấu hình ứng dụng VPN trên máy tính của họ.\nChọn Client VPN Endpoint bạn đã tạo trong hội thảo này và chọn Download client configuration Định vị chứng chỉ và khóa khách hàng đã được tạo trong quá trình RSA Certificate Creation. Chứng chỉ và khóa khách hàng có thể được tìm thấy ở các vị trí sau trong repo EasyRSA của OpenVPN đã được nhân bản: Chứng chỉ khách hàng — easy-rsa/easyrsa3/pki/issued/user1.awsclientvpnworkshop.com.crt\nKhóa khách hàng — easy-rsa/easyrsa3/pki/private/user1.awsclientvpnworkshop.com.key\n\u0026lt;cert\u0026gt;\rNội dung của tệp chứng chỉ khách hàng (.crt) [user1.awsclientvpnworkshop.com.crt] bắt đầu từ -----BEGIN CERTIFICATE----- và kết thúc với -----END CERTIFICATE-----\r\u0026lt;/cert\u0026gt;\r\u0026lt;key\u0026gt;\rNội dung của tệp khóa riêng tư (.key) [user1.awsclientvpnworkshop.com.key] bắt đầu từ -----BEGIN PRIVATE KEY----- và kết thúc với -----END PRIVATE KEY-----\r\u0026lt;/key\u0026gt;\rLưu các thay đổi bạn đã thực hiện vào tệp downloaded-client-config.ovpn. Bạn đã hoàn tất các bước để tải về và chuẩn bị tệp Cấu hình Client VPN Endpoint.\n"
+},
+{
+	"uri": "/vi/2-preparation/2.1-generatekeypair/",
+	"title": "Tạo Key Pair",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Key Pair Tạo Key Pair Đăng nhập vào AWS Management Console Tìm EC2 Chọn EC2 Trong workshop này, chúng ta sẽ sử dụng Region Singapore ( ap-southeast-1). Nếu bạn muốn sử dụng Region khác , hãy đảm bảo chuyển Region về Region bạn muốn sử dụng khi tạo các tài nguyên liên quan tới workshop.\nTrong giao diện EC2 Chọn Key Pair Chọn Create key pair Trong giao diện Create key pair Name, nhập vpnclient-key Key pair type, chọn RSA Private key file format, chọn .pem Chọn Create key pair Tạo key pair thành công. "
+},
+{
+	"uri": "/vi/3-certificatemanager/3.1-creatersacetificate/",
+	"title": "Tạo RSA Certificate",
+	"tags": [],
+	"description": "",
+	"content": "Tạo RSA Certificate Bước để tạo RSA Certificate Trong xác thực song phương, Client VPN sử dụng chứng chỉ để thực hiện xác thực giữa khách hàng và máy chủ. Chứng chỉ là một hình thức nhận dạng kỹ thuật số được cấp bởi một cơ quan chứng chỉ (CA). Máy chủ sử dụng chứng chỉ khách hàng để xác thực khách hàng khi họ cố gắng kết nối với điểm cuối Client VPN. Bạn phải tạo một chứng chỉ và khóa máy chủ, và ít nhất một chứng chỉ và khóa khách hàng.\nBạn phải tải lên chứng chỉ máy chủ lên AWS Certificate Manager (ACM) và chỉ định nó khi bạn tạo một điểm cuối Client VPN. Khi bạn tải lên chứng chỉ máy chủ lên ACM, bạn cũng chỉ định cơ quan chứng chỉ (CA). Bạn chỉ cần tải lên chứng chỉ khách hàng lên ACM khi CA của chứng chỉ khách hàng khác với CA của chứng chỉ máy chủ.\nBạn có thể tạo một chứng chỉ và khóa khách hàng riêng biệt cho mỗi khách hàng sẽ kết nối với điểm cuối Client VPN. Điều này cho phép bạn thu hồi một chứng chỉ khách hàng cụ thể nếu người dùng rời khỏi tổ chức của bạn. Trong trường hợp này, khi bạn tạo điểm cuối Client VPN, bạn có thể chỉ định ARN của chứng chỉ máy chủ cho chứng chỉ khách hàng, miễn là chứng chỉ khách hàng đã được cấp bởi cùng một CA như chứng chỉ máy chủ.\nQuy trình sau cài đặt Easy-RSA 3.x. phần mềm và sử dụng nó để tạo chứng chỉ và khóa máy chủ và khách hàng.\nĐể tạo chứng chỉ và khóa máy chủ và khách hàng và tải chúng lên ACM\nMở trang phát hành EasyRSA và tải tệp ZIP cho phiên bản Windows của bạn và giải nén nó.\nMở PowerShell và di chuyển đến vị trí đã giải nén thư mục EasyRSA-3.x.\nChạy lệnh sau để mở shell EasyRSA 3. .\\EasyRSA-Start.bat\nKhởi tạo môi trường PKI mới ./easyrsa init-pki Để xây dựng một cơ quan chứng chỉ (CA) mới, chạy lệnh này ./easyrsa build-ca nopass và làm theo hướng dẫn. Cho \u0026ldquo;Common Name\u0026rdquo;, nhập awsclientvpnworkshop.com Tạo chứng chỉ và khóa máy chủ ./easyrsa build-server-full awsclientvpnworkshop.com nopass Nhập yes để xác nhận khi được hỏi Tạo chứng chỉ và khóa máy chủ ./easyrsa build-client-full user1.awsclientvpnworkshop.com nopass Nhập yes để xác nhận khi được hỏi Thoát khỏi shell EasyRSA 3. "
+},
+{
+	"uri": "/vi/1-introduce/",
+	"title": "Thiết lập Client VPN Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan AWS Client VPN là một dịch vụ VPN dựa trên khách hàng được quản lý, giúp bạn truy cập an toàn vào tài nguyên AWS của mình và tài nguyên trong mạng trên chỗ của bạn. Với client VPN, bạn có thể truy cập tài nguyên của mình từ bất kỳ địa điểm nào bằng cách sử dụng một khách hàng VPN dựa trên OpenVPN.\nCác trường hợp sử dụng của AWS Client VPN\nMở rộng nhanh chóng quyền truy cập từ xa - Những sự kiện đột ngột có thể đòi hỏi nhiều nhân viên của bạn làm việc từ xa. Điều này tạo ra một đỉnh điểm trong các kết nối và lưu lượng VPN có thể giảm hiệu suất hoặc khả dụng cho người dùng của bạn. AWS Client VPN là một dịch vụ linh hoạt, tự động mở rộng lên để xử lý đỉnh điểm nhu cầu. Khi đỉnh điểm đã qua, nó tự động giảm xuống để bạn không phải trả tiền cho khả năng không sử dụng.\nTruy cập ứng dụng trong quá trình di cư - AWS Client VPN cung cấp quyền truy cập an toàn đến các ứng dụng cả trên chỗ và trong AWS. Điều này hữu ích trong quá trình di cư đám mây khi các ứng dụng chuyển từ các địa điểm trên chỗ sang đám mây. Với AWS Client VPN, người dùng không cần phải thay đổi cách họ truy cập ứng dụng của mình trong quá trình di cư hoặc sau cư trú.\nTích hợp với hệ thống xác thực và quản lý thiết bị di động - AWS Client VPN hỗ trợ xác thực với Microsoft Active Directory bằng cách sử dụng Dịch vụ Thư mục AWS, xác thực dựa trên chứng chỉ và Xác thực Liên kết sử dụng SAML-2.0 để hỗ trợ những tình huống này khi sử dụng phần mềm khách OpenVPN do AWS cung cấp. AWS Client VPN hoạt động với các giải pháp Quản lý Thiết bị Di động (MDM) để từ chối các thiết bị không tuân theo các chính sách của bạn.\nKết nối an toàn cho thiết bị IoT - Tạo các kết nối được mã hóa giữa thiết bị IoT và tài nguyên Amazon Virtual Private Cloud (VPC) bằng cách sử dụng xác thực dựa trên chứng chỉ.\nTrong bài thực hành này, bạn sẽ tạo AWS Client VPN kết nối với EC2 Private trên VPC. Trong phần còn lại của buổi hướng dẫn này, bạn sẽ thực hiện các bước sau:\n"
+},
+{
+	"uri": "/vi/",
+	"title": "Thiết lập Điểm cuối VPN cho Người dùng",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan AWS Client VPN là một dịch vụ VPN dựa trên khách hàng được quản lý, giúp bạn truy cập an toàn vào tài nguyên AWS của mình và tài nguyên trong mạng trên chỗ của bạn. Với client VPN, bạn có thể truy cập tài nguyên của mình từ bất kỳ địa điểm nào bằng cách sử dụng một khách hàng VPN dựa trên OpenVPN.\nCác trường hợp sử dụng của AWS Client VPN\nMở rộng nhanh chóng quyền truy cập từ xa - Những sự kiện đột ngột có thể đòi hỏi nhiều nhân viên của bạn làm việc từ xa. Điều này tạo ra một đỉnh điểm trong các kết nối và lưu lượng VPN có thể giảm hiệu suất hoặc khả dụng cho người dùng của bạn. AWS Client VPN là một dịch vụ linh hoạt, tự động mở rộng lên để xử lý đỉnh điểm nhu cầu. Khi đỉnh điểm đã qua, nó tự động giảm xuống để bạn không phải trả tiền cho khả năng không sử dụng.\nTruy cập ứng dụng trong quá trình di cư - AWS Client VPN cung cấp quyền truy cập an toàn đến các ứng dụng cả trên chỗ và trong AWS. Điều này hữu ích trong quá trình di cư đám mây khi các ứng dụng chuyển từ các địa điểm trên chỗ sang đám mây. Với AWS Client VPN, người dùng không cần phải thay đổi cách họ truy cập ứng dụng của mình trong quá trình di cư hoặc sau cư trú.\nTích hợp với hệ thống xác thực và quản lý thiết bị di động - AWS Client VPN hỗ trợ xác thực với Microsoft Active Directory bằng cách sử dụng Dịch vụ Thư mục AWS, xác thực dựa trên chứng chỉ và Xác thực Liên kết sử dụng SAML-2.0 để hỗ trợ những tình huống này khi sử dụng phần mềm khách OpenVPN do AWS cung cấp. AWS Client VPN hoạt động với các giải pháp Quản lý Thiết bị Di động (MDM) để từ chối các thiết bị không tuân theo các chính sách của bạn.\nKết nối an toàn cho thiết bị IoT - Tạo các kết nối được mã hóa giữa thiết bị IoT và tài nguyên Amazon Virtual Private Cloud (VPC) bằng cách sử dụng xác thực dựa trên chứng chỉ.\nTrong bài thực hành này, bạn sẽ tạo AWS Client VPN kết nối với EC2 Private trên VPC. Trong phần còn lại của buổi hướng dẫn này, bạn sẽ thực hiện các bước sau:\n"
+},
+{
+	"uri": "/vi/2-preparation/",
+	"title": "Các Bước Chuẩn Bị",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan Trong phần này, bạn sẽ thiết lập cơ sở hạ tầng mạng với CloudFormation Template cho bài thực hành với kiến trúc sau:\nDo đó, các tài nguyên triển khai bao gồm:\nEC2 Public có thể được kết nối qua Internet. EC2 Private không thể được kết nối qua Internet. Nội dung Tạo Key Pair Khởi tạo CloudFormation Template "
+},
+{
+	"uri": "/vi/5-connectbyclientvpn/5.2-connecttoaws/",
+	"title": "Kết nối với AWS Client VPN endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Kết nối với AWS Client VPN endpoint Bạn có thể chọn ứng dụng Client VPN từ AWS provided client và chọn hệ điều hành bạn muốn sử dụng. Sau khi cài đặt, bạn sẽ sử dụng VPN endpoint configuration file bạn đã tải về trong bước trước để kết nối đến Điểm cuối Client VPN của AWS. Chạy tệp AWS_VPN_Client.msi. Chọn Run. Chọn I accept the terms in the License Agreement, và Chọn Install. Chọn Finish Mở Phần mềm AWS VPN Client, chọn File, Manage Profiles và Add Profile. Nhập Display Name là AWS Client VPN và chọn VPN Configuration File mà bạn đã tải về trước đó downloaded-client-config.ovpn. Chọn Add Profile Quay lại cửa sổ AWS VPN Client và chọn Connect. Bạn đã hoàn tất các bước để kết nối với AWS Client VPN.\n"
+},
+{
+	"uri": "/vi/2-preparation/2.2-initializecloudformationtemplate/",
+	"title": "Khởi tạo CloudFormation Template",
+	"tags": [],
+	"description": "",
+	"content": "Khởi tạo CloudFormation Template Trước tiên, bạn phải tải CloudFormation Template xuống và tiến hành thao tác giải nén.\nTruy cập CloudFormation Management Console bằng cách nhập CloudFormation vào thanh tìm kiếm. Trong giao diện CloudFormation Chọn Tạo Stack (Create stack) Chọn Upload a template file, chọn lap-vpc.yaml từ nguồn đã tải xuống ở trên, và chọn Next. Trong trang Specify stack details, nhập tên cho stack (ví dụ: Lab-VPC-Stack), chọn MyIP của bạn, và chọn SSH Key của bạn, sau đó chọn Next. Trong trang Configure stack options*, giữ nguyên mặc định và chọn Next. Trong trang Review, kiểm tra thông tin và chọn Submit. Tạo Stack thành công. Quay lại giao diện AWS Management Console Tìm EC2 Chọn EC2 Trong giao diện EC2 Chọn Instances Chọn EC2 Public 1 Trong giao diện EC2 Chọn Instances Chọn EC2 Private 2 "
+},
+{
+	"uri": "/vi/3-certificatemanager/3.2-uploadcertificatetoacm/",
+	"title": "Tải lên chứng chỉ vào AWS Certificate Manager (ACM)",
+	"tags": [],
+	"description": "",
+	"content": "Bước để tải lên chứng chỉ vào AWS Certificate Manager (ACM) Để hoàn tất các bước, chúng ta sẽ tải lên chứng chỉ máy chủ và khách hàng vào AWS Certificate Manager (ACM) bằng cách sử dụng chứng chỉ RSA chúng ta đã tạo ở bước trước. Tuy nhiên, nếu chứng chỉ máy chủ và khách hàng đã được cấp bởi cùng một Tổ chức Chứng chỉ (CA), bạn có thể sử dụng ARN của chứng chỉ máy chủ cho cả máy chủ và khách hàng khi tạo điểm cuối Client VPN.\nTìm kiếm certificate manager trong thanh tìm kiếm Dịch vụ. Chọn Certificate Manager từ danh sách.\nTrên trang AWS Certificate Manager, chọn Import a certificate\nĐi đến thư mục nơi bạn đã giải nén thư mục EasyRSA-3.x. Nhập thông tin chứng chỉ máy chủ như sau.\nMở tệp nằm trong \\EasyRSA-3.x\\pki\\issued\\awsclientvpnworkshop.com.crt trong trình soạn thảo văn bản mà bạn chọn\nSao chép phần nằm ở dưới cùng của tệp từ \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; đến \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; vào Phần thân chứng chỉ (Certificate body)\nMở tệp nằm trong \\EasyRSA-3.x\\pki\\private\\awsclientvpnworkshop.com.key trong trình soạn thảo văn bản mà bạn chọn\nSao chép phần của tệp bắt đầu từ \u0026mdash;\u0026ndash;BEGIN PRIVATE KEY\u0026mdash;\u0026ndash; đến \u0026mdash;\u0026ndash;END PRIVATE KEY\u0026mdash;\u0026ndash; vào Phần khóa riêng tư của chứng chỉ (Certificate private key)\nMở tệp nằm trong \\EasyRSA-3.x\\pki\\ca.crt trong trình soạn thảo văn bản mà bạn chọn\nSao chép phần của tệp bắt đầu từ \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; và kết thúc với \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; vào Phần chuỗi chứng chỉ (Certificate chain)\nChọn Tiếp theo (Next) khi đã hoàn thành\n(Tùy chọn) Cung cấp một thẻ tên và mô tả cho chứng chỉ sau đó chọn Next Chọn Import Quay lại trang chính AWS Certificate Manager (ACM) và chọn Import certificate để bắt đầu nhập chi tiết client certificate như sau.\nMở tệp nằm trong \\EasyRSA-3.x\\pki\\issued\\user1.awsclientvpnworkshop.com.crt bằng bất kỳ trình soạn thảo văn bản nào bạn chọn\nSao chép phần nằm ở cuối tệp từ \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; đến \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; vào phần \u0026ldquo;Certificate body\u0026rdquo;\nMở tệp nằm trong /easy-rsa/easyrsa3/pki/private/user1.awsclientvpnworkshop.com.key bằng bất kỳ trình soạn thảo văn bản nào bạn chọn\nSao chép phần từ \u0026mdash;\u0026ndash;BEGIN PRIVATE KEY\u0026mdash;\u0026ndash; đến \u0026mdash;\u0026ndash;END PRIVATE KEY\u0026mdash;\u0026ndash; vào phần \u0026ldquo;Certificate private key\u0026rdquo;\nMở tệp nằm trong /easy-rsa/easyrsa3/pki/ca.crt bằng bất kỳ trình soạn thảo văn bản nào bạn chọn\nSao chép phần từ **\u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; và kết thúc bằng \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; vào phần \u0026ldquo;Certificate chain\u0026rdquo;\nChọn Next\n(Tùy chọn) Cung cấp một thẻ tên và mô tả cho chứng chỉ sau đó Chọn Next Chọn Import Làm mới màn hình bằng cách nhấp vào biểu tượng Làm mới và bạn sẽ thấy cả hai chứng chỉ bạn đã nhập. Bạn đã hoàn thành các bước cần thiết để tải chứng chỉ lên ACM\n"
+},
+{
+	"uri": "/vi/3-certificatemanager/",
+	"title": "AWS Certificate Manager",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan AWS Certificate Manager (ACM)—Dịch vụ này dành cho khách hàng doanh nghiệp cần có một hiện diện web an toàn sử dụng giao thức TLS. Các chứng chỉ ACM được triển khai thông qua Elastic Load Balancing, Amazon CloudFront, Amazon API Gateway và các dịch vụ tích hợp khác của AWS. Ứng dụng phổ biến nhất của dịch vụ này là một trang web công cộng an toàn với yêu cầu lưu lượng đáng kể. ACM cũng giúp đơn giản hóa quản lý bảo mật bằng cách tự động hóa việc gia hạn chứng chỉ sắp hết hạn. Bạn đang ở đúng nơi cho dịch vụ này.\nNội dung Tạo Chứng chỉ RSA Tải lên Chứng chỉ lên ACM "
+},
+{
+	"uri": "/vi/4-createclientvpc/",
+	"title": "Tạo Client VPN Endpiont",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Client VPN Endpiont Tìm kiếm VPC trong thanh tìm kiếm Dịch vụ. Chọn VPC từ danh sách. Trong bảng điều hướng, chọn Client VPN endpoints và sau đó chọn Create Client VPN endpoint. Nhập Name là client-vpn và chỉ định một dải địa chỉ IP, theo định dạng CIDR, từ đó gán địa chỉ IP khách hàng. Ví dụ: 10.254.0.0/16 Đối với Server certificate ARN, chọn ARN của chứng chỉ máy chủ bạn đã tạo trước đó. Chứng chỉ được đặt tên là awsclientvpnworkshop.com. Dưới Other parameters, bật chế độ \u0026ldquo;Enable split-tunnel\u0026rdquo; và chọn VPC từ danh sách thả xuống có tên \u0026ldquo;Remote Access workshop VPC\u0026rdquo;. Bật chế độ split-tunnel cho phép bạn gửi lưu lượng internet của mình qua ISP cục bộ khi bạn kết nối đến điểm cuối Client VPN AWS.\nTùy chọn thêm Key và Value hoặc để trống. Sau đó, chọn Create client VPN endpoint để tạo điểm cuối Client VPN. Chọn Client VPN endpoint bạn vừa tạo trong quy trình trước đó và sau đó chọn Target network associations, Associate target network. Đối với VPC, chọn VPC có tên \u0026ldquo;LAP VPC\u0026rdquo;. Đối với Choose a subnet to associate, chọn mạng con tư nhân Private Subnet 2 để liên kết với điểm cuối Client VPN. Chọn Associate target network. Quá trình liên kết có thể mất 10-15 phút để hoàn thành.\nĐể cho phép người dùng truy cập VPC, cần phải có một route đến VPC trong bảng route của điểm kết nối Client VPN và một quy tắc ủy quyền. Route đã được thêm tự động trong bước trước đó. Đối với hướng dẫn này, chúng ta muốn cấp quyền truy cập cho tất cả người dùng đến VPC. Đối với cùng một điểm kết nối Client VPN, thêm quy tắc ủy quyền. Chọn Authorization rules, sau đó chọn Add authorization rule. Đối với Mạng đích để kích hoạt quyền truy cập, nhập CIDR của mạng mà bạn muốn cho phép truy cập. Ví dụ, để cho phép truy cập vào toàn bộ VPC, chỉ định khối CIDR IPv4 của VPC là 10.10.0.0/16. Đối với Grant access to, chọn Allow access to all users. Thêm mô tả Authorization for VPC CIDR và sau đó chọn Add authorization rule. "
+},
+{
+	"uri": "/vi/5-connectbyclientvpn/",
+	"title": "Kiểm thử AWS Client VPN endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Kiểm thử AWS Client VPN endpoint Trong bước này, chúng ta sẽ kết nối từ Client VPN đến máy chủ EC2 Private.\nNội dung Tải tệp Cấu hình Kết nối với AWS Kiểm thử kết nối "
+},
+{
+	"uri": "/vi/5-connectbyclientvpn/5.3-testconnect/",
+	"title": "Kiểm tra Điểm cuối Client VPN của AWS",
+	"tags": [],
+	"description": "",
+	"content": "Kiểm tra kết quả Chạy Windowns PowerShell trên Client và ping từ phía Client VPN đến máy chủ EC2 Private. Sử dụng Key Pair bạn đã sao chép vào máy chủ trong phần trước, kết nối SSH từ EC2 Private với các lệnh: ssh -i vpnclient-key.pem ec2-user@\u0026lt;EC2 Private IP\u0026gt; "
+},
+{
+	"uri": "/vi/6-cleanup/",
+	"title": "Dọn dẹp tài nguyên",
+	"tags": [],
+	"description": "",
+	"content": "Dọn dẹp tài nguyên Bạn có thể dọn dẹp các tài nguyên theo thứ tự sau:\nXóa AWS Client VPN Endpoint Truy cập VPC Management Console. Ở thanh bên trái, Client VPN Endpoints. Lần lượt đánh dấu client-vpn liên quan đến thẻ, chọn Authorization Rules, chọn Quy tắc và chọn Remove Authorization. Chọn Target Network Associations, chọn Quy tắc và chọn Delete Client VPN Endpoint. Đánh dấu client-vpn, chọn Actions, và chọn Delete Client VPN Endpoint. Gõ \u0026ldquo;delete\u0026rdquo;, và chọn Delete. 2 . Xóa CloudFormation Stack\nTruy cập CloudFormation Management Console. Ở thanh bên trái, chọnStacks. Đánh dấu CloudFormation Stack liên quan đến lab và chọn Delete. Trong hộp thoại, chọn Delete Stack. Chờ vài phút cho đến khi CloudFormation xóa tất cả các tài nguyên. Xóa Certificate Manager Truy cập Certificate Manager. Ở thanh bên trái, chọn List Certificates. Đánh dấu Certificate Manager liên quan đến lab và chọn Delete. Gõ \u0026ldquo;delete\u0026rdquo;, và chọn Delete. "
+},
+{
+	"uri": "/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]

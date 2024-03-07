@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Test the AWS Client VPN endpoint on Start with Amazon VPC and AWS VPN Site-to-Site.</title>
+    <link>/5-connectbyclientvpn/5.3-testconnect/</link>
+    <description>Recent content in Test the AWS Client VPN endpoint on Start with Amazon VPC and AWS VPN Site-to-Site.</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <atom:link href="/5-connectbyclientvpn/5.3-testconnect/index.xml" rel="self" type="application/rss+xml" />
+  </channel>
+</rss>
