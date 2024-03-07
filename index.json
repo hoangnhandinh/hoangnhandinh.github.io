@@ -1,0 +1,113 @@
+[
+{
+	"uri": "//localhost:1313/3-certificatemanager/3.1-creatersacetificate/",
+	"title": "Create RSA Certificate",
+	"tags": [],
+	"description": "",
+	"content": "Create RSA Certificate Steps to create RSA Certificate With mutual authentication, Client VPN uses certificates to perform authentication between the client and the server. Certificates are a digital form of identification issued by a certificate authority (CA). The server uses client certificates to authenticate clients when they attempt to connect to the Client VPN endpoint. You must create a server certificate and key, and at least one client certificate and key.\nYou must upload the server certificate to AWS Certificate Manager (ACM) and specify it when you create a Client VPN endpoint. When you upload the server certificate to ACM, you also specify the certificate authority (CA). You only need to upload the client certificate to ACM when the CA of the client certificate is different from the CA of the server certificate.\nYou can create a separate client certificate and key for each client that will connect to the Client VPN endpoint. This enables you to revoke a specific client certificate if a user leaves your organization. In this case, when you create the Client VPN endpoint, you can specify the server certificate ARN for the client certificate, provided that the client certificate has been issued by the same CA as the server certificate.traffic.\nThe following procedure installs Easy-RSA 3.x. software and uses it to generate server and client certificates and keys.\nTo generate server and client certificates and keys and upload them to ACM\nOpen the EasyRSA releases page and download the ZIP file for your version of Windows and extract it.\nOpen a PowerShell and navigate to the location that the EasyRSA-3.x folder was extracted to.\nRun the following command to open the EasyRSA 3 shell. .\\EasyRSA-Start.bat\nInitialize a new PKI environment ./easyrsa init-pki To build a new certificate authority (CA), run this command ./easyrsa build-ca nopass and follow the prompts. For \u0026ldquo;Common Name\u0026rdquo; enter awsclientvpnworkshop.com Generate the server certificate and key ./easyrsa build-server-full awsclientvpnworkshop.com nopass Type yes to confirm when prompted Generate the server certificate and key ./easyrsa build-client-full user1.awsclientvpnworkshop.com nopass Type yes to confirm when prompted Exit the EasyRSA 3 shell. "
+},
+{
+	"uri": "//localhost:1313/5-connectbyclientvpn/5.1-dowloadcongigurationfile/",
+	"title": "Download and customize Client VPN endpoint configuration file",
+	"tags": [],
+	"description": "",
+	"content": "Download and customize Client VPN endpoint configuration file The next step is to download and prepare the Client VPN endpoint configuration file. The configuration file includes the Client VPN endpoint details and certificate information required to establish a VPN connection. You provide this file to the end users who need to connect to the Client VPN endpoint after making the required changes listed below. The end user then uses the file to configure their VPN client application.\nSelect the Client VPN endpoint that you created in this workshop, and choose Download client configuration Locate the client certificate and key that were generated during RSA Certificate Creation process. The client certificate and key can be found in the following locations in the cloned OpenVPN easy-rsa repo: Client certificate — easy-rsa/easyrsa3/pki/issued/user1.awsclientvpnworkshop.com.crt\nClient key — easy-rsa/easyrsa3/pki/private/user1.awsclientvpnworkshop.com.key\n\u0026lt;cert\u0026gt;\rContents of client certificate (.crt) file [user1.awsclientvpnworkshop.com.crt] beginning from -----BEGIN CERTIFICATE----- and ending with -----END CERTIFICATE-----\r\u0026lt;/cert\u0026gt;\r\u0026lt;key\u0026gt;\rContents of private key (.key) file [user1.awsclientvpnworkshop.com.key] beginning from -----BEGIN PRIVATE KEY----- and ending with -----END PRIVATE KEY-----\r\u0026lt;/key\u0026gt;\rSave the changes you made to the downloaded-client-config.ovpn file. You have completed the steps to download and prepare the Client VPN endpoint Configuration file.\n"
+},
+{
+	"uri": "//localhost:1313/2-preparation/2.1-generatekeypair/",
+	"title": "Generate Key Pair",
+	"tags": [],
+	"description": "",
+	"content": "Generate Key Pair Create Key Pair Login to AWS Management Console Find EC2 Select EC2 In this workshop, we will use the Singapore region (ap-southeast-1). If you want to use another Region, be sure to move the Region back to the Region you want to use when creating workshop-related resources.\nIn the EC2 interface Select Key Pairs Select Create key pair In the Create key pair interface Name, enter vpnclient-key Key pair type, select RSA Private key file format, select .pem Select Create key pair Generate key pair successfully. "
+},
+{
+	"uri": "//localhost:1313/1-introduce/",
+	"title": "Set up Client VPN Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Overview AWS Client VPN is a managed client-based VPN service that enables you to securely access your AWS resources and resources in your on-premises network. With client VPN, you can access your resources from any location using an OpenVPN-based VPN client.\nAWS Client VPN use cases\nQuickly scale remote access - Unexpected events can require many of your employees to work remotely. This creates a spike in VPN connections and traffic that can reduce performance or availability for your users. AWS Client VPN is elastic, and automatically scales up to handle peak demand. When the spike has passed, it scales down so you are not paying for unused capacity.\nAccess applications during migration - AWS Client VPN provides users with secure access to applications both on premises and in AWS. This is helpful during a cloud migration when applications move from on-premises locations to the cloud. With AWS Client VPN, users don’t have to change the way they access their applications during or after migration.\nIntegrate with your authentication and MDM systems - AWS Client VPN supports authentication with Microsoft Active Directory using AWS Directory Services, Certificate-based authentication, and Federated Authentication using SAML-2.0 to facilitate these scenarios when using the AWS provided OpenVPN Client software. AWS Client VPN works with Mobile Device Management (MDM) solutions to reject devices that do not comply with the your policies.\nSecurely connecting IoT devices - Create encrypted connections between IoT devices and Amazon Virtual Private Cloud (VPC) resources using certificate-based authentication.\nIn this lab, you will create AWS Client VPN connect to EC2 Private on VPC. In the remainder of this session you will perform the following steps:\n"
+},
+{
+	"uri": "//localhost:1313/",
+	"title": "Set up Client VPN Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Start with Amazon VPC and AWS VPN Site-to-Site Overview AWS Client VPN is a managed client-based VPN service that enables you to securely access your AWS resources and resources in your on-premises network. With client VPN, you can access your resources from any location using an OpenVPN-based VPN client.\nContent Introduction Preparation Certificate Manager Create Client VPC Test the AWS Client VPN Resource Cleanup "
+},
+{
+	"uri": "//localhost:1313/5-connectbyclientvpn/5.2-connecttoaws/",
+	"title": "Connect to the AWS Client VPN endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Connect to the AWS Client VPN endpoint You can choose the Client VPN application from AWS provided client and select the OS of your choice. Once installed you will use the VPN endpoint configuration file you downloaded in the earlier step to connect to the AWS Client VPN endpoint. Run the AWS_VPN_Client.msi. Choose Run. Select I accpect the terms in the License Agreement, and Choose Install. Choose Finish Open the Software AWS VPN Client, select File, Manage Profiles and Add Profile. Enter Display Name as AWS Client VPN and select the VPN Configuration File which you downloaded earlier downloaded-client-config.ovpn. Select Add Profile Return to AWS VPN Client window and select Connect. You have completed the steps to connect to AWS Client VPN.\n"
+},
+{
+	"uri": "//localhost:1313/2-preparation/2.2-initializecloudformationtemplate/",
+	"title": "Initialize CloudFormation Template",
+	"tags": [],
+	"description": "",
+	"content": "Initialize CloudFormation Template You must first download file lap-vpc.yml CloudFormation Template and proceed with decompression operation.\nAccess the CloudFormation Management Console by typing CloudFormation in the search bar. In the CloudFormation interface Select Create stack Select Upload a template file, select lap-vpc.yaml from the source we downloaded above, and select Next. In the Specify stack details page, enter a name for the stack (eg Lab-VPC-Stack), select your MyIP, and select your SSH Key, and then select Next. In the Configure stack options page, keep the defaults and select Next. In the Review page, check the information and select Submit. Create Stack successfully. Return to AWS Management Console interface Find EC2 Select EC2 In the EC2 interface Select Instances Select EC2 Public 1 In the EC2 interface Select Instances Select EC2 Private 2 "
+},
+{
+	"uri": "//localhost:1313/2-preparation/",
+	"title": "Preparation",
+	"tags": [],
+	"description": "",
+	"content": "Overview In this part, you will set up the network infrastructure with CloudFormation Template for the lab with the following architecture:\nAs such, deployed resources include:\nEC2 Public can be connected via the Internet. EC2 Private cannot be connected via the Internet. Content Generate Key Pair Initialize CloudFormation Template "
+},
+{
+	"uri": "//localhost:1313/3-certificatemanager/3.2-uploadcertificatetoacm/",
+	"title": "Upload certificate to AWS Certificate Manager (ACM)",
+	"tags": [],
+	"description": "",
+	"content": "Steps to upload certificate to AWS Certificate Manager (ACM) For completeness of the steps, we will upload a server and client certificate in AWS Certificate Manager (ACM) using the RSA certificates we created in the previous step. However, if the server and client certificates have been issued by the same Certificate Authority (CA), you can use the server certificate ARN for both server and client when you create the Client VPN endpoint.\nSearch **certificate manager**in the Services search bar. Select Certificate Manager from the list. On the AWS Certificate Manager page select Import a certificate Go to the directory where you have extracted EasyRSA-3.x folder. Input server certificate details as mentioned below.\nOpen file located in \\EasyRSA-3.x\\pki\\issued\\awsclientvpnworkshop.com.crt in a text editor of your choice\nCopy section located at the bottom of the file from \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; in to Certificate body\nOpen file located in \\EasyRSA-3.x\\pki\\private\\awsclientvpnworkshop.com.key in a text editor of your choice\nCopy section of the file beginning from \u0026mdash;\u0026ndash;BEGIN PRIVATE KEY\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END PRIVATE KEY\u0026mdash;\u0026ndash; in to Certificate private key\nOpen file located in \\EasyRSA-3.x\\pki\\ca.crt in a text editor of your choice\nCopy section of the file beginning from \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; in to Certificate chain\nSelect Next when completed\n(Optional) Provide a name tag and description for the certificate then Select Next Select Import Return to AWS Certificate Manager (ACM) homepage and select Import certificate to begin inputting client certificate details as mentioned below.\nOpen file located in \\EasyRSA-3.x\\pki\\issued\\user1.awsclientvpnworkshop.com.crt in a text editor of your choice\nCopy section located at the bottom of the file from \u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; in to Certificate body\nOpen file located in /easy-rsa/easyrsa3/pki/private/user1.awsclientvpnworkshop.com.key in a text editor of your choice\nCopy section of the file beginning from \u0026mdash;\u0026ndash;BEGIN PRIVATE KEY\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END PRIVATE KEY\u0026mdash;\u0026ndash; in to Certificate private key\nOpen file located in /easy-rsa/easyrsa3/pki/ca.crt in a text editor of your choice\nCopy section of the file beginning from **\u0026mdash;\u0026ndash;BEGIN CERTIFICATE\u0026mdash;\u0026ndash; and ending with \u0026mdash;\u0026ndash;END CERTIFICATE\u0026mdash;\u0026ndash; in to Certificate chain\nSelect Next\n(Optional) Provide a name tag and description for the certificate then Select Next Select Import Refresh the screen by clicking on the Refresh icon and you will see both the certificates you have imported. You have now completed the steps required to upload the certificate to ACM.\n"
+},
+{
+	"uri": "//localhost:1313/3-certificatemanager/",
+	"title": "AWS Certificate Manager",
+	"tags": [],
+	"description": "",
+	"content": "Overview AWS Certificate Manager (ACM)—This service is for enterprise customers who need a secure web presence using TLS. ACM certificates are deployed through Elastic Load Balancing, Amazon CloudFront, Amazon API Gateway, and other integrated AWS services. The most common application of this kind is a secure public website with significant traffic requirements. ACM also simplifies security management by automating the renewal of expiring certificates. You are in the right place for this service.\nContent Create RSA Certificate Up load Cetificate to ACM "
+},
+{
+	"uri": "//localhost:1313/4-createclientvpc/",
+	"title": "Create Client VPN Endpiont",
+	"tags": [],
+	"description": "",
+	"content": "Create Client VPN Endpoint Search VPC in the Services search bar. Select VPC from the list. In the navigation pane, choose Client VPN endpoints and then choose Create Client VPN endpoint. Enter Name tag client-vpn and specify an IP address range, in CIDR notation, from which to assign client IP addresses. For example 10.254.0.0/16 For Server certificate ARN, select the ARN of the server certificate that you generated earlier. Certificate is labeled as awsclientvpnworkshop.com. Under Other parameters enable \u0026ldquo;Enable split-tunnel\u0026rdquo; and select VPC from the dropdown list named \u0026ldquo;Remote Access workshop VPC\u0026rdquo;. Enabling split-tunnel allows you to send your internet traffic via your local ISP when you are connected to AWS Client VPN endpoint.\nOptionally add Key and Value or leave it blank. Then Select Create client VPN endpoint to create Client VPN. Select the Client VPN endpoint that you created in the preceding procedure, and then choose Target network associations, Associate target network. For VPC, choose the VPC labeled \u0026ldquo;LAP VPC\u0026rdquo;. For Choose a subnet to associate, choose the Private Subnet 2 subnet to associate with the Client VPN endpoint. Choose Associate target network. Association process can take 10-15 minutes to complete.\nFor clients to access the VPC, there needs to be a route to the VPC in the Client VPN endpoint\u0026rsquo;s route table and an authorization rule. The route was already added automatically in the previous step. For this workshop, we want to grant all users access to the VPC. For the same Client VPN endpoint add the authorization rule. Choose Authorization rules, and then choose Add authorization rule. For Destination network to enable access, enter the CIDR of the network for which you want to allow access. For example, to allow access to the entire VPC, specify the IPv4 CIDR block of the VPC 10.10.0.0/16. For Grant access to, choose Allow access to all users. Add a description Authorization for VPC CIDR and then choose Add authorization rule. "
+},
+{
+	"uri": "//localhost:1313/5-connectbyclientvpn/5.3-testconnect/",
+	"title": "Test the AWS Client VPN endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Check the result Run Windowns PowerShell on the Client and ping from the Client VPN side to the EC2 Private server. ping \u0026lt;EC2 Private IP\u0026gt; Using the Key Pair you copied to the instance in the previous section, connect SSH from EC2 Private with commands: ssh -i vpnclient-key.pem ec2-user@\u0026lt;EC2 Private IP\u0026gt; "
+},
+{
+	"uri": "//localhost:1313/5-connectbyclientvpn/",
+	"title": "Test the AWS Client VPN endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Test the AWS Client VPN endpoint In this step we will connect from the Client VPN to the EC2 Private server.\nContent Dowload Congiguration File Connect To AWS Test Connection "
+},
+{
+	"uri": "//localhost:1313/6-cleanup/",
+	"title": "Clean up resources",
+	"tags": [],
+	"description": "",
+	"content": "Clean up resources You should clean up resources in the following order:\nDelete AWS Client VPN Endpoint Access the VPC Management Console. In the left sidebar, select Client VPN Endpoints. Tick the client-vpn related to the card, select Authorization Rules, select a rule, and choose Remove Authorization. Select Target Network Associations, choose a rule, and select Disassociate. Tick client-vpn, select Actions, and choose Delete Client VPN Endpoint. Type \u0026ldquo;delete\u0026rdquo; and select Delete. Delete CloudFormation Stack\nAccess the CloudFormation Management Console. In the left sidebar, select Stacks. Tick the CloudFormation Stack related to the lab and select Delete. In the prompt, select Delete Stack. Wait a few minutes until CloudFormation clears all resources. Delete Certificate Manager\nAccess the Certificate Manager. In the left sidebar, select List Certificates. Tick the Certificate Manager related to the lab and select Delete. Type \u0026ldquo;delete\u0026rdquo; and select Delete. "
+},
+{
+	"uri": "//localhost:1313/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
