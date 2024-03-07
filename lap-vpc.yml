@@ -1,0 +1,296 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Create four VPCs and hosts for a Transit Gateway lab
+
+Parameters:
+  SshKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The SSH key for the instances
+
+  MyIPAddress:
+    Type: String
+    Description: Your public IP address
+
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+    Description: The ID of the latest Amazon Machine Image (AMI)
+
+Resources:
+  LapVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.10.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: "LAP VPC"
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}a"
+      CidrBlock: 10.10.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: "Public Subnet 1"
+      VpcId: !Ref LapVPC
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}b"
+      CidrBlock: 10.10.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: "Public Subnet 2"
+      VpcId: !Ref LapVPC
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}a"
+      CidrBlock: 10.10.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: "Private Subnet 1"
+      VpcId: !Ref LapVPC
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}b"
+      CidrBlock: 10.10.4.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: "Private Subnet 2"
+      VpcId: !Ref LapVPC
+
+  PublicSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "Public Subnet"
+      GroupDescription: "Allow SSH and Ping for servers in public subnet"
+      VpcId: !Ref LapVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          ToPort: 22
+          FromPort: 22
+          CidrIp: !Sub '${MyIPAddress}/32'
+        - IpProtocol: icmp
+          ToPort: -1
+          FromPort: -1
+          CidrIp: 0.0.0.0/0 
+
+  PrivateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "Private Subnet"
+      GroupDescription: "Allow SSH and Ping for servers in private subnet"
+      VpcId: !Ref LapVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          ToPort: 22
+          FromPort: 22
+          CidrIp: 10.10.0.0/16
+        - IpProtocol: icmp
+          ToPort: -1
+          FromPort: -1
+          CidrIp: 0.0.0.0/0
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "Internet Gateway"
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref LapVPC
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref LapVPC
+      Tags:
+        - Key: Name
+          Value: "Public Route Table"
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref LapVPC
+      Tags:
+        - Key: Name
+          Value: "Priavte Route Table"
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet2
+
+  # PublictHost:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     ImageId: !Ref LatestAmiId
+  #     InstanceType: t2.micro
+  #     SubnetId: !Ref PublicSubnet1
+  #     KeyName: !Ref SshKeyName
+  #     SecurityGroupIds:
+  #       - !Ref PublicSecurityGroup
+  #     Tags:
+  #       - Key: Name
+  #         Value: "EC2 Public 1"
+
+  # PrivatetHost:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     ImageId: !Ref LatestAmiId
+  #     InstanceType: t2.micro
+  #     SubnetId: !Ref PrivateSubnet2
+  #     KeyName: !Ref SshKeyName
+  #     SecurityGroupIds:
+  #       - !Ref PrivateSecurityGroup
+  #     Tags:
+  #       - Key: Name
+  #         Value: "EC2 Private 2"
+  
+  # VPNVPC:
+  #   Type: AWS::EC2::VPC
+  #   Properties:
+  #     CidrBlock: 10.11.0.0/16
+  #     EnableDnsSupport: true
+  #     EnableDnsHostnames: true
+  #     Tags:
+  #       - Key: Name
+  #         Value: "VPN VPC"
+
+  # VPNPublicSubnet:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     AvailabilityZone: !Sub "${AWS::Region}a"
+  #     CidrBlock: 10.11.1.0/24
+  #     MapPublicIpOnLaunch: true
+  #     Tags:
+  #       - Key: Name
+  #         Value: "VPN Subnet 1"
+  #     VpcId: !Ref VPNVPC
+
+  # InternetGatewayVPN:
+  #   Type: AWS::EC2::InternetGateway
+  #   Properties:
+  #     Tags:
+  #       - Key: "Name"
+  #         Value: "Internet Gateway VPN"  
+
+  # VPNAttachGateway:
+  #   Type: AWS::EC2::VPCGatewayAttachment
+  #   Properties:
+  #     InternetGatewayId: !Ref InternetGatewayVPN
+  #     VpcId: !Ref VPNVPC
+
+  # VPNPublicRouteTable:
+  #   Type: AWS::EC2::RouteTable
+  #   Properties:
+  #     VpcId: !Ref VPNVPC
+  #     Tags:
+  #       - Key: Name
+  #         Value: "VPN Public Route Table"
+
+  # VPNPublicRoute:
+  #   Type: AWS::EC2::Route
+  #   Properties:
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     GatewayId: !Ref InternetGatewayVPN
+  #     RouteTableId: !Ref VPNPublicRouteTable         
+
+  # PublicSubnetVPNRouteTableAssociation:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties:
+  #     RouteTableId: !Ref VPNPublicRouteTable
+  #     SubnetId: !Ref VPNPublicSubnet
+
+  # VPNSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupName: "Public Subnet VPN"
+  #     GroupDescription: "Allow SSH and Ping for servers in private subnet"
+  #     VpcId: !Ref VPNVPC
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         ToPort: 22
+  #         FromPort: 22
+  #         CidrIp: !Sub '${MyIPAddress}/32'
+  #       - IpProtocol: icmp
+  #         ToPort: -1
+  #         FromPort: -1
+  #         CidrIp: 0.0.0.0/0  
+  #       - IpProtocol: udp
+  #         ToPort: 400
+  #         FromPort: 400
+  #         CidrIp: 0.0.0.0/0
+  #       - IpProtocol: tcp
+  #         ToPort: 500
+  #         FromPort: 500
+  #         CidrIp: 0.0.0.0/0
+
+  # # VPNHost:
+  # #   Type: AWS::EC2::Instance
+  # #   Properties:
+  # #     ImageId: !Ref LatestAmiId
+  # #     InstanceType: t2.micro
+  # #     SubnetId: !Ref VPNPublicSubnet
+  # #     KeyName: !Ref SshKeyName
+  # #     SecurityGroupIds:
+  # #       - !Ref VPNSecurityGroup
+  # #     Tags:
+  # #       - Key: Name
+  # #         Value: "EC2 Customer"
+
+  # VirtualPrivateGateway:
+  #   Type: AWS::EC2::VPNGateway
+  #   Properties:
+  #     Type: ipsec.1
+  #     AmazonSideAsn: 64512
+  #     VpcId: !Ref LapVPC
+
+  # CustomerGateway:
+  #   Type: AWS::EC2::CustomerGateway
+  #   Properties:
+  #     BgpAsn: 65000
+  #     PublicIp: !Ref CustomerGatewayIP
+  #     Type: ipsec.1
